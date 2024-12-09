@@ -8,6 +8,7 @@ on:
 
 jobs:
   define_tag:
+    environment: preview
     runs-on: ubuntu-latest
     outputs:
       imageUrl: ${{ steps.imageTag.outputs.url }}
@@ -28,6 +29,7 @@ jobs:
           echo "tag=latest" >> "$GITHUB_OUTPUT"
           echo "image=$ECR_REPO_NAME:latest" >> "$GITHUB_OUTPUT"
   build:
+    environment: preview
     needs: define_tag
     uses: ./.github/workflows/build.yml
     with:
