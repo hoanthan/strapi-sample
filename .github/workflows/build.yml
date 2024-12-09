@@ -36,9 +36,9 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
       #    - name: Login to codeartifact
       #      run: echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain kicksplanet --domain-owner 815148504314 --region ap-southeast-1 --query authorizationToken --output text)" >> $GITHUB_ENV
-    - name: Download .env file
+    - name: Update .env file
       run: |
-        cp .env.sample .env
+        cp ./.env.sample .env
     - name: Fetch Secret Env Variables
       run: |
         echo "DATABASE_HOST=$(aws secretsmanager get-secret-value --secret-id ${{ inputs.db_secret_id }} --query 'SecretString' --output text | jq -r '.host')" >> .env
