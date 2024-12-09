@@ -31,7 +31,6 @@ jobs:
   build:
     needs: define_tag
     uses: ./.github/workflows/build.yml
-    environment: preview
     with:
       env: "production"
       image_tag: ${{ needs.define_tag.outputs.imageUrl }}

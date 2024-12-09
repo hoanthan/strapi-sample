@@ -19,6 +19,7 @@ jobs:
 
   build_and_push:
     name: Build and Push
+    environment: preview
     runs-on: ubuntu-latest
 
     steps:
