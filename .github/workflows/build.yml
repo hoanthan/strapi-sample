@@ -1,0 +1,63 @@
+name: Build and push
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        description: image environment
+        required: true
+        type: string
+      image_tag:
+        description: docker image tag
+        required: true
+        type: string
+      db_secret_id:
+        type: string
+        required: true
+
+jobs:
+
+  build_and_push:
+    name: Build and Push
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+      #    - name: Login to codeartifact
+      #      run: echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain kicksplanet --domain-owner 815148504314 --region ap-southeast-1 --query authorizationToken --output text)" >> $GITHUB_ENV
+    - name: Download .env file
+      run: |
+        cp .env.sample .env
+    - name: Fetch Secret Env Variables
+      run: |
+        echo "DATABASE_HOST=$(aws secretsmanager get-secret-value --secret-id ${{ inputs.db_secret_id }} --query 'SecretString' --output text | jq -r '.host')" >> .env
+        echo "DATABASE_HOST=$(aws secretsmanager get-secret-value --secret-id ${{ inputs.db_secret_id }} --query 'SecretString' --output text | jq -r '.host')" >> $GITHUB_ENV
+        echo "DATABASE_PORT=$(aws secretsmanager get-secret-value --secret-id ${{ inputs.db_secret_id }} --query 'SecretString' --output text | jq -r '.port')" >> .env
+        echo "DATABASE_USER=$(aws secretsmanager get-secret-value --secret-id ${{ inputs.db_secret_id }} --query 'SecretString' --output text | jq -r '.username')" >> .env
+        echo "DATABASE_NAME=$(aws secretsmanager get-secret-value --secret-id ${{ inputs.db_secret_id }} --query 'SecretString' --output text | jq -r '.dbname')" >> .env
+        echo "DATABASE_PASSWORD=$(aws secretsmanager get-secret-value --secret-id ${{ inputs.db_secret_id }} --query 'SecretString' --output text | jq -r '.password')" >> .env
+    - name: Docker login
+      run: aws ecr get-login-password | docker login --username AWS --password-stdin ${{ vars.ECR_REGISTRY }}
+    - name: Build and push
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        platforms: linux/amd64
+        push: true
+        tags: ${{ inputs.image_tag }}
+        build-args: |
+          "DB_HOST=${{ env.DATABASE_HOST }}"
+    - name: Remove untagged images
+      run: |
+        IMAGES_TO_DELETE=$( aws ecr list-images --region ${{ secrets.AWS_REGION }} --repository-name ${{ vars.ECR_REPO_NAME }} --filter "tagStatus=UNTAGGED" --query 'imageIds[*]' --output json )
+        aws ecr batch-delete-image --region ${{ secrets.AWS_REGION }} --repository-name ${{ vars.ECR_REPO_NAME }} --image-ids "$IMAGES_TO_DELETE" || true
