@@ -1,0 +1,22 @@
+{
+  "kind": "singleType",
+  "collectionName": "landing_pages",
+  "info": {
+    "singularName": "landing-page",
+    "pluralName": "landing-pages",
+    "displayName": "Landing Page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "whyChooseUs": {
+      "displayName": "Why Choose Us Section",
+      "type": "component",
+      "repeatable": false,
+      "component": "landing-page.why-choose-us-section",
+      "required": true
+    }
+  }
+}

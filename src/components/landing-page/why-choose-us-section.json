@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_landing_page_why_choose_us_sections",
+  "info": {
+    "displayName": "Why Choose Us Section"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "headline": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "keyPoints": {
+      "displayName": "Key Point",
+      "type": "component",
+      "repeatable": true,
+      "component": "why-choose-us-section.key-point",
+      "required": false
+    }
+  }
+}
