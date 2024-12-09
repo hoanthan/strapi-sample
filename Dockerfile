@@ -16,7 +16,7 @@ RUN yarn install --production
 
 # Creating final production image
 FROM node:20.11.0-alpine
-RUN apk add --no-cache vips-dev
+RUN apk add --no-cache vips-dev curl
 ENV NODE_ENV=production
 
 WORKDIR /opt/app
