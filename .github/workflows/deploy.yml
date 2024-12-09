@@ -29,9 +29,9 @@ jobs:
           echo "tag=latest" >> "$GITHUB_OUTPUT"
           echo "image=$ECR_REPO_NAME:latest" >> "$GITHUB_OUTPUT"
   build:
-    environment: preview
     needs: define_tag
     uses: ./.github/workflows/build.yml
+    environment: preview
     with:
       env: "production"
       image_tag: ${{ needs.define_tag.outputs.imageUrl }}
